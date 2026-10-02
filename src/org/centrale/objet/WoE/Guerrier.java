@@ -1,7 +1,13 @@
 package org.centrale.objet.WoE;
 
-public class Guerrier {
+/** A warrior able to fight creatures. */
+public class Guerrier extends Personnage {
 
+    /** Creates a warrior. */
+    public Guerrier() {
+    }
+
+    /** Prepares a fight with a creature. */
     public void combattre(Creature c) {
 
     }
