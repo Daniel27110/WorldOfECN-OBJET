@@ -1,6 +1,6 @@
 package org.centrale.objet.WoE;
 
-public class Personnage {
+public class Personnage extends Creature {
 
     private String nom;
     private int ptVie;
