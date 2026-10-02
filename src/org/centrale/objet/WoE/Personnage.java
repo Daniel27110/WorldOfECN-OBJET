@@ -1,40 +1,57 @@
 package org.centrale.objet.WoE;
 
-public class Monstre {
+public class Personnage {
 
+    private String nom;
     private int ptVie;
     private int degAtt;
     private int ptPar;
     private int pageAtt;
     private int pagePar;
+    private int distAttMax;
 
     private Point2D pos;
 
-    public Monstre(int ptVie, int degAtt, int ptPar, int pageAtt, int pagePar, Point2D pos) {
+    public Personnage(String nom, int ptVie, int degAtt, int ptPar, int pageAtt, int pagePar, int distAttMax,
+            Point2D pos) {
+        this.nom = nom;
         this.ptVie = ptVie;
         this.degAtt = degAtt;
         this.ptPar = ptPar;
         this.pageAtt = pageAtt;
         this.pagePar = pagePar;
+        this.distAttMax = distAttMax;
         this.pos = new Point2D(pos);
     }
 
-    public Monstre(Monstre m) {
-        this.ptVie = m.ptVie;
-        this.degAtt = m.degAtt;
-        this.ptPar = m.ptPar;
-        this.pageAtt = m.pageAtt;
-        this.pagePar = m.pagePar;
-        this.pos = new Point2D(m.pos);
+    public Personnage(Personnage p) {
+        this.nom = p.nom;
+        this.ptVie = p.ptVie;
+        this.degAtt = p.degAtt;
+        this.ptPar = p.ptPar;
+        this.pageAtt = p.pageAtt;
+        this.pagePar = p.pagePar;
+        this.distAttMax = p.distAttMax;
+        this.pos = new Point2D(p.pos);
     }
 
-    public Monstre() {
+    public Personnage() {
+        this.nom = "Personnage";
         this.ptVie = 100;
         this.degAtt = 10;
         this.ptPar = 5;
         this.pageAtt = 5;
         this.pagePar = 5;
+        this.distAttMax = 1;
         this.pos = new Point2D();
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public int getPtVie() {
@@ -77,6 +94,14 @@ public class Monstre {
         this.pagePar = pagePar;
     }
 
+    public int getDistAttMax() {
+        return distAttMax;
+    }
+
+    public void setDistAttMax(int distAttMax) {
+        this.distAttMax = distAttMax;
+    }
+
     public Point2D getPos() {
         return pos;
     }
@@ -85,14 +110,15 @@ public class Monstre {
         this.pos = pos;
     }
 
-    public void afficher() {
-        System.out.println("Monstre: ptVie=" + ptVie + ", degAtt=" + degAtt + ", ptPar=" + ptPar +
-                ", pageAtt=" + pageAtt + ", pagePar=" + pagePar);
-        pos.afficher();
+    public void deplacer(int dx, int dy) {
+        this.pos.translate(dx, dy);
     }
 
-    public void deplacer(int dx, int dy) {
-        pos.translate(dx, dy);
+    public void afficher() {
+        System.out.println("Personnage: nom=" + nom + ", ptVie=" + ptVie + ", degAtt=" + degAtt +
+                ", ptPar=" + ptPar + ", pageAtt=" + pageAtt + ", pagePar=" + pagePar +
+                ", distAttMax=" + distAttMax);
+        pos.afficher();
     }
 
 }
