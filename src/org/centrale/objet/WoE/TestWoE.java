@@ -12,18 +12,12 @@ public class TestWoE {
 
         System.out.println("\nAffichage des créatures avant déplacement :\n");
 
-        world.robin.afficher();
-        world.peon.afficher();
-        world.bugs.afficher();
-
-        world.robin.deplacer();
-        world.peon.deplacer();
-        world.bugs.deplacer();
+        world.afficherMonde();
 
         System.out.println("\nAffichage des créatures après déplacement :\n");
 
-        world.robin.afficher();
-        world.peon.afficher();
-        world.bugs.afficher();
+        world.tourDeJeu();
+
+        world.afficherMonde();
     }
 }
