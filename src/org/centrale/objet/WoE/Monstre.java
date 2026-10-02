@@ -1,6 +1,6 @@
 package org.centrale.objet.WoE;
 
-public class Monstre {
+public class Monstre extends Creature {
 
     private int ptVie;
     private int degAtt;
