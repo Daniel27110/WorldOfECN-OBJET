@@ -28,4 +28,8 @@ public class Archer extends Personnage {
         this.nbFleches = nbFleches;
     }
 
+    public void combattre(Creature c) {
+
+    }
+
 }

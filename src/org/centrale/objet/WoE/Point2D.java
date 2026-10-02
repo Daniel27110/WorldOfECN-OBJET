@@ -54,4 +54,10 @@ public class Point2D {
         int dy = this.y - p.y;
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
+
+    public static Point2D randomPoint(int worldHeight, int worldWidth) {
+        int randomX = (int) (Math.random() * worldWidth);
+        int randomY = (int) (Math.random() * worldHeight);
+        return new Point2D(randomX, randomY);
+    }
 }
