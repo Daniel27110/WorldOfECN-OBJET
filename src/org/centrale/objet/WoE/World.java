@@ -1,66 +1,45 @@
 package org.centrale.objet.WoE;
 
+import java.util.LinkedList;
+import java.util.Random;
+
 /** Contains the creatures and dimensions of a game world. */
 public class World {
 
-    /** Default archer character. */
-    public Archer robin = new Archer();
-    /** Default peasant character. */
-    public Paysan peon = new Paysan();
-    /** Default rabbit monster. */
-    public Lapin bugs = new Lapin();
-    /** Default rabbit monster 2. */
-    public Lapin bugs2 = new Lapin();
-    /** Default warrior character. */
-    public Guerrier guillaumeT = new Guerrier();
-    /** Default wolf monster. */
-    public Loup wolfie = new Loup();
+    private static final int WORLD_HEIGHT = 2000;
+    private static final int WORLD_WIDTH = 2000;
 
-    private int worldHeight = 100;
-    private int worldWidth = 100;
+    private LinkedList<Personnage> protagonistes = new LinkedList<>();
 
-    /** Creates a world containing default creatures. */
+    /** Creates an empty world. */
     public World() {
-
     }
 
-    /** Assigns random positions and names to the default creatures. */
-    public void creerMondeAleatoire() {
+    /**
+     * Randomly generated protagonists.
+     *
+     * @param nombre number of protagonists to create
+     */
+    public void creerMondeAleatoire(int nombre) {
 
-        robin.setNom("Robin");
-        peon.setNom("Peon");
-        guillaumeT.setNom("Guillaume");
+        Random random = new Random();
 
-        // Set random positions for the characters
-        robin.setPos(Point2D.randomPoint(worldHeight, worldWidth));
-        peon.setPos(Point2D.randomPoint(worldHeight, worldWidth));
-        bugs.setPos(Point2D.randomPoint(worldHeight, worldWidth));
-        bugs2.setPos(Point2D.randomPoint(worldHeight, worldWidth));
-        guillaumeT.setPos(Point2D.randomPoint(worldHeight, worldWidth));
-        wolfie.setPos(Point2D.randomPoint(worldHeight, worldWidth));
-
+        for (int i = 0; i < nombre; i++) {
+            Personnage personnage = new Personnage(
+                    "Personnage-" + i,
+                    50 + random.nextInt(151),
+                    1 + random.nextInt(20),
+                    random.nextInt(11),
+                    1 + random.nextInt(100),
+                    1 + random.nextInt(100),
+                    1 + random.nextInt(10),
+                    Point2D.randomPoint(WORLD_HEIGHT, WORLD_WIDTH));
+            protagonistes.add(personnage);
+        }
     }
 
-    public void tourDeJeu() {
-
-        robin.deplacer();
-        peon.deplacer();
-        bugs.deplacer();
-        bugs2.deplacer();
-        guillaumeT.deplacer();
-        wolfie.deplacer();
-
+    /** @return the protagonists stored in this world */
+    public LinkedList<Personnage> getProtagonistes() {
+        return protagonistes;
     }
-
-    public void afficherMonde() {
-
-        robin.afficher();
-        peon.afficher();
-        bugs.afficher();
-        bugs2.afficher();
-        guillaumeT.afficher();
-        wolfie.afficher();
-
-    }
-
 }

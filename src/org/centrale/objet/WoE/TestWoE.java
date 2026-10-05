@@ -1,35 +1,48 @@
 package org.centrale.objet.WoE;
 
-/** Demonstrates world creation, display and creature movement. */
-public class TestWoE {
+import java.util.LinkedList;
 
-    /** Runs the demonstration program. @param args command-line arguments */
+public class TestWoE {
     public static void main(String[] args) {
 
+        // Ajoutez 100 protagonistes aléatoirement
         World world = new World();
+        world.creerMondeAleatoire(1000);
+        LinkedList<Personnage> protagonistes = world.getProtagonistes();
 
-        world.creerMondeAleatoire();
+        // Mesurez le temps nécessaire pour calculer le nombre total des points de vie
+        // avec une boucle basée sur la taille du conteneur
+        long start = System.nanoTime();
+        long totalHP = 0;
 
-        System.out.println("\nAffichage des créatures avant déplacement :\n");
+        for (int i = 0; i < protagonistes.size(); i++) {
+            totalHP += protagonistes.get(i).getPtVie();
+        }
 
-        world.afficherMonde();
+        long end = System.nanoTime();
+        long duration = end - start;
 
-        System.out.println("\nAffichage des créatures après déplacement :\n");
+        System.out.println("Boucle basée sur la taille du conteneur :");
+        System.out.println("Points de vie totaux : " + totalHP);
+        System.out.println("Durée du calcul : " + duration + " nanosecondes");
 
-        world.tourDeJeu();
+        // Mesurez le temps nécessaire pour calculer le nombre total des points de vie
+        // avec une boucle basée sur les itérateurs
 
-        world.afficherMonde();
+        start = System.nanoTime();
+        totalHP = 0;
 
-        world.robin.setPageAtt(100);
-        world.robin.setDistAttMax(5);
-        world.robin.setPos(new Point2D(0, 0));
-        world.bugs.setPos(new Point2D(1, 0));
-        world.robin.combattre(world.bugs);
+        for (Personnage personnage : protagonistes) {
+            totalHP += personnage.getPtVie();
+        }
 
-        world.bugs.setPos(new Point2D(3, 0));
-        world.robin.combattre(world.bugs);
-        System.out.println("\nAprès les combats, points de vie du lapin : "
-                + world.bugs.getPtVie() + ", flèches restantes : "
-                + world.robin.getNbFleches());
+        end = System.nanoTime();
+        duration = end - start;
+
+        System.out.println();
+        System.out.println("Boucle basée sur les itérateurs :");
+        System.out.println("Points de vie totaux : " + totalHP);
+        System.out.println("Durée du calcul : " + duration + " nanosecondes");
     }
+
 }
