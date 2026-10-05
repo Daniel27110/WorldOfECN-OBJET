@@ -34,9 +34,15 @@ public class Archer extends Personnage {
         this.nbFleches = nbFleches;
     }
 
-    /** Prepares a fight with another creature. */
-    public void combattre(Creature c) {
-
+    /** @return whether at least one arrow is available */
+    @Override
+    protected boolean peutTirer() {
+        return nbFleches > 0;
     }
 
+    /** Removes one arrow after a ranged attack. */
+    @Override
+    protected void consommerProjectile() {
+        nbFleches--;
+    }
 }

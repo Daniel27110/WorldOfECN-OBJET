@@ -63,6 +63,36 @@ public class Personnage extends Creature {
         this.distAttMax = distAttMax;
     }
 
+    /**
+     * Performs a contact or ranged attack according to the distance.
+     *
+     * @param c opponent
+     */
+    @Override
+    public void combattre(Creature c) {
+        if (c == null) {
+            return;
+        }
+        float distance = getPos().distance(c.getPos());
+        if (distance == 1) {
+            super.combattre(c);
+        } else if (distance > 1 && distance < distAttMax && peutTirer()) {
+            consommerProjectile();
+            if (jetReussi(getPageAtt())) {
+                c.setPtVie(Math.max(0, c.getPtVie() - getDegAtt()));
+            }
+        }
+    }
+
+    /** @return whether this character has a projectile available */
+    protected boolean peutTirer() {
+        return true;
+    }
+
+    /** Consumes a projectile; characters without ammunition do nothing. */
+    protected void consommerProjectile() {
+    }
+
     /** Displays the character name and position. */
     @Override
     public void afficher() {

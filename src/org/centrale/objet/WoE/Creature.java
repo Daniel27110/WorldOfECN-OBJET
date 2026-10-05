@@ -120,4 +120,27 @@ public class Creature {
         System.out.println(getClass().getSimpleName() + ": ptVie=" + ptVie
                 + ", pos=(" + pos.getX() + ", " + pos.getY() + ")");
     }
+
+    /**
+     * Performs a contact attack when the opponent is on an adjacent cell.
+     *
+     * @param c opponent
+     */
+    public void combattre(Creature c) {
+        if (c == null) {
+            return;
+        }
+        if (pos.distance(c.pos) == 1 && jetReussi(pageAtt)) {
+            int degats = degAtt;
+            if (jetReussi(c.pagePar)) {
+                degats -= c.ptPar;
+            }
+            c.ptVie = Math.max(0, c.ptVie - Math.max(0, degats));
+        }
+    }
+
+    /** @return whether a percentage-based die roll succeeds */
+    protected boolean jetReussi(int pourcentage) {
+        return 1 + (int) (Math.random() * 100) <= pourcentage;
+    }
 }

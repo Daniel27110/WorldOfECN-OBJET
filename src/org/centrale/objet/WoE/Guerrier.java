@@ -7,9 +7,4 @@ public class Guerrier extends Personnage {
     public Guerrier() {
     }
 
-    /** Prepares a fight with a creature. */
-    public void combattre(Creature c) {
-
-    }
-
 }
