@@ -1,14 +1,15 @@
 package org.centrale.objet.WoE;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class TestWoE {
     public static void main(String[] args) {
 
         // Ajoutez 100 protagonistes aléatoirement
         World world = new World();
-        world.creerMondeAleatoire(1000);
-        LinkedList<Personnage> protagonistes = world.getProtagonistes();
+        world.creerMondeAleatoire(100);
+        ArrayList<Personnage> protagonistes = world.getProtagonistes();
+        System.out.println("Nombre de protagonistes : " + protagonistes.size());
 
         // Mesurez le temps nécessaire pour calculer le nombre total des points de vie
         // avec une boucle basée sur la taille du conteneur
@@ -22,6 +23,7 @@ public class TestWoE {
         long end = System.nanoTime();
         long duration = end - start;
 
+        System.out.println();
         System.out.println("Boucle basée sur la taille du conteneur :");
         System.out.println("Points de vie totaux : " + totalHP);
         System.out.println("Durée du calcul : " + duration + " nanosecondes");
