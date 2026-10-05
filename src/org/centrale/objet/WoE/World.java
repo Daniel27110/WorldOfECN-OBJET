@@ -6,9 +6,13 @@ import java.util.Random;
 /** Contains the creatures and dimensions of a game world. */
 public class World {
 
+    /** Height of the world in coordinate units. */
     private static final int WORLD_HEIGHT = 2000;
+
+    /** Width of the world in coordinate units. */
     private static final int WORLD_WIDTH = 2000;
 
+    /** Characters currently contained in the world. */
     private ArrayList<Personnage> protagonistes = new ArrayList<>();
 
     /** Creates an empty world. */
@@ -39,6 +43,11 @@ public class World {
 
     }
 
+    /**
+     * Finds an unoccupied random position in the world.
+     *
+     * @return an unoccupied position
+     */
     private Point2D trouverPositionLibre() {
         Point2D position = Point2D.randomPoint(WORLD_HEIGHT, WORLD_WIDTH);
         while (positionOccupee(position)) {
@@ -47,6 +56,12 @@ public class World {
         return position;
     }
 
+    /**
+     * Checks whether a position is already occupied by a protagonist.
+     *
+     * @param position position to check
+     * @return {@code true} if the position is occupied
+     */
     private boolean positionOccupee(Point2D position) {
         for (Personnage personnage : protagonistes) {
             if (personnage.getPos().getX() == position.getX()
