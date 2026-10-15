@@ -11,10 +11,22 @@ public class NuageToxique extends ElementDeJeu implements Deplacable {
         this.degats = degats;
     }
 
-    public int getPourcentageAttaque() { return pourcentageAttaque; }
-    public int getDegats() { return degats; }
+    public int getPourcentageAttaque() {
+        return pourcentageAttaque;
+    }
 
-    @Override public void deplacer() { getPos().translate((int) (Math.random() * 3) - 1,
-            (int) (Math.random() * 3) - 1); }
-    @Override public void afficher() { System.out.println("NuageToxique: pos=" + getPos()); }
+    public int getDegats() {
+        return degats;
+    }
+
+    @Override
+    public void deplacer() {
+        getPos().translate((int) (Math.random() * 3) - 1,
+                (int) (Math.random() * 3) - 1);
+    }
+
+    @Override
+    public void afficher() {
+        System.out.println("NuageToxique: pos=(" + getPos().getX() + ", " + getPos().getY() + ")");
+    }
 }

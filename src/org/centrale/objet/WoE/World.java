@@ -61,14 +61,21 @@ public class World {
 
             if ("Largeur".equals(t[0])) {
                 world.largeur = Integer.parseInt(t[1]);
+                System.out.println("Largeur: " + world.largeur);
             } else if ("Hauteur".equals(t[0])) {
                 world.hauteur = Integer.parseInt(t[1]);
+                System.out.println("Hauteur: " + world.hauteur);
             } else if ("Joueur".equals(t[0])) {
                 world.joueur = new Joueur(personnage(t, 1));
+                world.joueur.getPerso().afficher();
             } else if ("Inventaire".equals(t[0])) {
-                world.joueur.ajouterObjet(objet(t, 1));
+                Objet objet = objet(t, 1);
+                world.joueur.ajouterObjet(objet);
+                objet.afficher();
             } else {
-                world.ajouterElement(element(t));
+                ElementDeJeu element = element(t);
+                world.ajouterElement(element);
+                element.afficher();
             }
         }
         return world;
@@ -83,10 +90,16 @@ public class World {
             return monstre(t);
         }
         if ("NuageToxique".equals(t[0])) {
-            return new NuageToxique(Integer.parseInt(t[1]), Integer.parseInt(t[2]),
-                    new Point2D(Integer.parseInt(t[3]), Integer.parseInt(t[4])));
+            return nuageToxique(t);
         }
         return objet(t, 0);
+    }
+
+    private static NuageToxique nuageToxique(String[] t) {
+        int pourcentageAttaque = Integer.parseInt(t[1]);
+        int degats = Integer.parseInt(t[2]);
+        Point2D pos = new Point2D(Integer.parseInt(t[3]), Integer.parseInt(t[4]));
+        return new NuageToxique(pourcentageAttaque, degats, pos);
     }
 
     private static Personnage personnage(String[] t, int debut) {

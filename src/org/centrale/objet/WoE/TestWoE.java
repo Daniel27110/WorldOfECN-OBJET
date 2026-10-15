@@ -3,7 +3,9 @@ package org.centrale.objet.WoE;
 public class TestWoE {
     public static void main(String[] args) {
 
-        // Load file in SaveFiles/Sauvegarde-WoE.txtS
+        System.out.println("Sauvegarde chargée avec les elements suivants : \n");
+
+        // Charger le fichier de sauvegarde
         try {
 
             World loadedWorld = World.load("Sauvegarde-WoE.txt");
