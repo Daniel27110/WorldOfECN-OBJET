@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /** A game board and all the elements placed on it. */
 public class World {
@@ -45,6 +46,70 @@ public class World {
 
     public void ajouterElement(ElementDeJeu element) {
         elements.add(element);
+    }
+
+    /**
+     * Creates a random world with a player and the requested number of elements.
+     */
+    public void creerMondeAleatoire(int nombreElements) {
+        Random random = new Random();
+        largeur = 100 + random.nextInt(100);
+        hauteur = 100 + random.nextInt(100);
+        elements.clear();
+
+        joueur = new Joueur(new Guerrier("joueur", 100, 10, 5, 75, 50, 1,
+                Point2D.randomPoint(hauteur, largeur)));
+
+        for (int i = 0; i < nombreElements; i++) {
+            elements.add(elementAleatoire(random));
+        }
+    }
+
+    /** Creates n random elements and adds them to the world. */
+    private ElementDeJeu elementAleatoire(Random random) {
+        Point2D position = Point2D.randomPoint(hauteur, largeur);
+        int type = random.nextInt(10);
+        if (type == 0) {
+            return new Guerrier("guerrier", 20 + random.nextInt(81), 5 + random.nextInt(16),
+                    random.nextInt(11), random.nextInt(101), random.nextInt(101),
+                    1 + random.nextInt(5), position);
+        }
+        if (type == 1) {
+            return new Archer("archer", 20 + random.nextInt(81), 5 + random.nextInt(16),
+                    random.nextInt(11), random.nextInt(101), random.nextInt(101),
+                    1 + random.nextInt(5), position,
+                    1 + random.nextInt(20));
+        }
+        if (type == 2) {
+            return new Paysan("paysan", 20 + random.nextInt(81), 5 + random.nextInt(16),
+                    random.nextInt(11), random.nextInt(101), random.nextInt(101),
+                    0, position);
+        }
+        type -= 3;
+        if (type == 0) {
+            return new Loup(20 + random.nextInt(81), 5 + random.nextInt(16),
+                    random.nextInt(11), random.nextInt(101), random.nextInt(101), position);
+        }
+        if (type == 1) {
+            return new Lapin(20 + random.nextInt(81), 5 + random.nextInt(16),
+                    random.nextInt(11), random.nextInt(101), random.nextInt(101), position);
+        }
+        if (type == 2) {
+            return new PotionSoin(10 + random.nextInt(91), position);
+        }
+        if (type == 3) {
+            return new Epee(5 + random.nextInt(31), position);
+        }
+        if (type == 4) {
+            return new Poisson(5 + random.nextInt(31), position);
+        }
+        if (type == 5) {
+            return new Miel(5 + random.nextInt(31), position);
+        }
+        if (type == 6) {
+            return new Eau(5 + random.nextInt(31), position);
+        }
+        return new NuageToxique(20 + random.nextInt(81), 5 + random.nextInt(16), position);
     }
 
     /** Loads a save file from the {@code saveFiles} folder. */
