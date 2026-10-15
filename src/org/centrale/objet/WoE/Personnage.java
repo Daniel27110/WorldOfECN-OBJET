@@ -6,7 +6,7 @@ package org.centrale.objet.WoE;
  * <p>Combat statistics, position and movement are inherited from
  * {@link Creature}.</p>
  */
-public class Personnage extends Creature {
+public abstract class Personnage extends Creature {
     private String nom;
     private int distAttMax;
 

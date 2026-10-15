@@ -6,7 +6,7 @@ package org.centrale.objet.WoE;
  * <p>Combat statistics, position, display and movement are inherited from
  * {@link Creature}.</p>
  */
-public class Monstre extends Creature {
+public abstract class Monstre extends Creature {
 
     /**
      * Creates a monster with the supplied attributes.

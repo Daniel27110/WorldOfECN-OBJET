@@ -6,14 +6,12 @@ package org.centrale.objet.WoE;
  * <p>This class owns the attributes and behaviour shared by characters and
  * monsters: combat statistics, position and random movement.</p>
  */
-public class Creature {
+public abstract class Creature extends ElementDeJeu implements Deplacable, Combattant {
     private int ptVie;
     private int degAtt;
     private int ptPar;
     private int pageAtt;
     private int pagePar;
-    private Point2D pos;
-
     /** Creates a creature with the default statistics at the origin. */
     public Creature() {
         this(100, 10, 5, 5, 5, new Point2D());
@@ -35,7 +33,7 @@ public class Creature {
         this.ptPar = ptPar;
         this.pageAtt = pageAtt;
         this.pagePar = pagePar;
-        this.pos = new Point2D(pos);
+        super(pos);
     }
 
     /**
@@ -45,7 +43,7 @@ public class Creature {
      */
     public Creature(Creature creature) {
         this(creature.ptVie, creature.degAtt, creature.ptPar, creature.pageAtt, creature.pagePar,
-                creature.pos);
+                creature.getPos());
     }
 
     /** Returns the life points. @return the life points */
@@ -100,25 +98,25 @@ public class Creature {
 
     /** Returns the current position. @return the current position */
     public Point2D getPos() {
-        return pos;
+        return super.getPos();
     }
 
     /** Changes the current position. @param pos new position */
     public void setPos(Point2D pos) {
-        this.pos = pos;
+        super.setPos(pos);
     }
 
     /** Moves the creature by a random offset of -1, 0 or 1 on each axis. */
     public void deplacer() {
         int dx = (int) (Math.random() * 3) - 1;
         int dy = (int) (Math.random() * 3) - 1;
-        pos.translate(dx, dy);
+        getPos().translate(dx, dy);
     }
 
     /** Displays the creature type, life points and position. */
     public void afficher() {
         System.out.println(getClass().getSimpleName() + ": ptVie=" + ptVie
-                + ", pos=(" + pos.getX() + ", " + pos.getY() + ")");
+                + ", pos=(" + getPos().getX() + ", " + getPos().getY() + ")");
     }
 
     /**
@@ -130,7 +128,7 @@ public class Creature {
         if (c == null) {
             return;
         }
-        if (pos.distance(c.pos) == 1 && jetReussi(pageAtt)) {
+        if (getPos().distance(c.getPos()) == 1 && jetReussi(pageAtt)) {
             int degats = degAtt;
             if (jetReussi(c.pagePar)) {
                 degats -= c.ptPar;

@@ -12,26 +12,10 @@ public class Archer extends Personnage {
         this.nbFleches = nbFleches;
     }
 
-    /** Creates a deep copy of an archer. */
-    public Archer(Archer a) {
-        super(a);
-        this.nbFleches = a.nbFleches;
-    }
-
     /** Creates an archer with default attributes and ten arrows. */
     public Archer() {
         super();
         this.nbFleches = 10;
-    }
-
-    /** @return the number of arrows */
-    public int getNbFleches() {
-        return nbFleches;
-    }
-
-    /** @param nbFleches new number of arrows */
-    public void setNbFleches(int nbFleches) {
-        this.nbFleches = nbFleches;
     }
 
     /** @return whether at least one arrow is available */
