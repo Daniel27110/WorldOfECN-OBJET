@@ -52,36 +52,51 @@ public class World {
         return sauvegardePartie(SAVE_FILES.resolve(nomFichier));
     }
 
+    /**
+     * Loads a save file with automatic name convention (Sauvegarde1.txt,
+     * Sauvegarde2.txt etc)
+     */
+    public static World sauvegardePartie() throws IOException {
+        int i = 1;
+        while (true) {
+            Path fichier = SAVE_FILES.resolve("Sauvegarde" + i + ".txt");
+            if (fichier.toFile().exists()) {
+                return sauvegardePartie(fichier);
+            }
+            i++;
+        }
+    }
+
     /** Loads a save file from the supplied path. */
     public static World sauvegardePartie(Path fichier) throws IOException {
         World world = new World();
         try (BufferedReader lecteur = new BufferedReader(new FileReader(fichier.toFile()))) {
             String ligne;
             while ((ligne = lecteur.readLine()) != null) {
-            ligne = ligne.trim();
-            if (ligne.isEmpty() || ligne.startsWith("#")) {
-                continue;
-            }
-            String[] t = ligne.split("\\s+");
+                ligne = ligne.trim();
+                if (ligne.isEmpty() || ligne.startsWith("#")) {
+                    continue;
+                }
+                String[] t = ligne.split("\\s+");
 
-            if ("Largeur".equals(t[0])) {
-                world.largeur = Integer.parseInt(t[1]);
-                System.out.println("Largeur: " + world.largeur);
-            } else if ("Hauteur".equals(t[0])) {
-                world.hauteur = Integer.parseInt(t[1]);
-                System.out.println("Hauteur: " + world.hauteur);
-            } else if ("Joueur".equals(t[0])) {
-                world.joueur = new Joueur(personnage(t, 1));
-                world.joueur.getPerso().afficher();
-            } else if ("Inventaire".equals(t[0])) {
-                Objet objet = objet(t, 1);
-                world.joueur.ajouterObjet(objet);
-                objet.afficher();
-            } else {
-                ElementDeJeu element = element(t);
-                world.ajouterElement(element);
-                element.afficher();
-            }
+                if ("Largeur".equals(t[0])) {
+                    world.largeur = Integer.parseInt(t[1]);
+                    System.out.println("Largeur: " + world.largeur);
+                } else if ("Hauteur".equals(t[0])) {
+                    world.hauteur = Integer.parseInt(t[1]);
+                    System.out.println("Hauteur: " + world.hauteur);
+                } else if ("Joueur".equals(t[0])) {
+                    world.joueur = new Joueur(personnage(t, 1));
+                    world.joueur.getPerso().afficher();
+                } else if ("Inventaire".equals(t[0])) {
+                    Objet objet = objet(t, 1);
+                    world.joueur.ajouterObjet(objet);
+                    objet.afficher();
+                } else {
+                    ElementDeJeu element = element(t);
+                    world.ajouterElement(element);
+                    element.afficher();
+                }
             }
         }
         return world;
