@@ -1,7 +1,10 @@
 package org.centrale.objet.WoE;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,14 +48,16 @@ public class World {
     }
 
     /** Loads a save file from the {@code saveFiles} folder. */
-    public static World load(String nomFichier) throws IOException {
-        return load(SAVE_FILES.resolve(nomFichier));
+    public static World sauvegardePartie(String nomFichier) throws IOException {
+        return sauvegardePartie(SAVE_FILES.resolve(nomFichier));
     }
 
     /** Loads a save file from the supplied path. */
-    public static World load(Path fichier) throws IOException {
+    public static World sauvegardePartie(Path fichier) throws IOException {
         World world = new World();
-        for (String ligne : Files.readAllLines(fichier)) {
+        try (BufferedReader lecteur = new BufferedReader(new FileReader(fichier.toFile()))) {
+            String ligne;
+            while ((ligne = lecteur.readLine()) != null) {
             ligne = ligne.trim();
             if (ligne.isEmpty() || ligne.startsWith("#")) {
                 continue;
@@ -77,8 +82,83 @@ public class World {
                 world.ajouterElement(element);
                 element.afficher();
             }
+            }
         }
         return world;
+    }
+
+    /** Exports this world to a save file in the {@code saveFiles} folder. */
+    public void sauvegarderPartie(String nomFichier) throws IOException {
+        sauvegarderPartie(SAVE_FILES.resolve(nomFichier));
+    }
+
+    /** Exports this world to the supplied save-file path. */
+    public void sauvegarderPartie(Path fichier) throws IOException {
+        try (BufferedWriter ecrivain = new BufferedWriter(new FileWriter(fichier.toFile()))) {
+            ecrivain.write("Largeur " + largeur);
+            ecrivain.newLine();
+            ecrivain.write("Hauteur " + hauteur);
+            ecrivain.newLine();
+            for (ElementDeJeu element : elements) {
+                ecrivain.write(description(element));
+                ecrivain.newLine();
+            }
+            ecrivain.write("Joueur " + description(joueur.getPerso()));
+            ecrivain.newLine();
+            for (Objet objet : joueur.getInventaire()) {
+                ecrivain.write("Inventaire " + description(objet, false));
+                ecrivain.newLine();
+            }
+        }
+    }
+
+    private static String description(ElementDeJeu element) {
+        if (element instanceof Personnage) {
+            return description((Personnage) element);
+        }
+        if (element instanceof Creature) {
+            Creature creature = (Creature) element;
+            return element.getClass().getSimpleName() + " " + creature.getPtVie() + " "
+                    + creature.getDegAtt() + " " + creature.getPtPar() + " "
+                    + creature.getPageAtt() + " " + creature.getPagePar() + " "
+                    + creature.getPos().getX() + " " + creature.getPos().getY();
+        }
+        if (element instanceof NuageToxique) {
+            NuageToxique nuage = (NuageToxique) element;
+            return "NuageToxique " + nuage.getPourcentageAttaque() + " "
+                    + nuage.getDegats() + " " + nuage.getPos().getX() + " "
+                    + nuage.getPos().getY();
+        }
+        return description((Objet) element, true);
+    }
+
+    private static String description(Personnage personnage) {
+        String description = personnage.getClass().getSimpleName() + " "
+                + personnage.getNom() + " " + personnage.getPtVie() + " "
+                + personnage.getDegAtt() + " " + personnage.getPtPar() + " "
+                + personnage.getPageAtt() + " " + personnage.getPagePar() + " "
+                + personnage.getDistAttMax();
+        if (personnage instanceof Archer) {
+            description += " " + ((Archer) personnage).getNbFleches();
+        }
+        return description + " " + personnage.getPos().getX() + " "
+                + personnage.getPos().getY();
+    }
+
+    private static String description(Objet objet, boolean position) {
+        int valeur = 0;
+        if (objet instanceof PotionSoin) {
+            valeur = ((PotionSoin) objet).getSoin();
+        } else if (objet instanceof Epee) {
+            valeur = ((Epee) objet).getBonusDegAtt();
+        } else if (objet instanceof Nourriture) {
+            valeur = ((Nourriture) objet).getSoin();
+        }
+        String description = objet.getClass().getSimpleName() + " " + valeur;
+        if (position) {
+            description += " " + objet.getPos().getX() + " " + objet.getPos().getY();
+        }
+        return description;
     }
 
     private static ElementDeJeu element(String[] t) {

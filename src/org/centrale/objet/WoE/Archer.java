@@ -18,6 +18,10 @@ public class Archer extends Personnage {
         this.nbFleches = 10;
     }
 
+    public int getNbFleches() {
+        return nbFleches;
+    }
+
     /** @return whether at least one arrow is available */
     @Override
     protected boolean peutTirer() {
