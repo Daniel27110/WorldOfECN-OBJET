@@ -53,8 +53,8 @@ public class World {
      */
     public void creerMondeAleatoire(int nombreElements) {
         Random random = new Random();
-        largeur = 100 + random.nextInt(100);
-        hauteur = 100 + random.nextInt(100);
+        largeur = 10;
+        hauteur = 10;
         elements.clear();
 
         joueur = new Joueur(new Guerrier("joueur", 100, 10, 5, 75, 50, 1,
