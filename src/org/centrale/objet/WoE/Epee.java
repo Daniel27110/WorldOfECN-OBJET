@@ -1,4 +1,5 @@
 package org.centrale.objet.WoE;
+
 /** A sword object. */
 public class Epee extends Objet {
     private final int bonusDegAtt;

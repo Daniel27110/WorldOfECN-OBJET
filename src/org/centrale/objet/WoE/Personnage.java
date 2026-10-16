@@ -74,7 +74,7 @@ public abstract class Personnage extends Creature {
             return;
         }
         float distance = getPos().distance(c.getPos());
-        if (distance == 1) {
+        if (distance <= 1) {
             super.combattre(c);
         } else if (distance > 1 && distance < distAttMax && peutTirer()) {
             consommerProjectile();

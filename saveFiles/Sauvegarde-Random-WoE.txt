@@ -21,3 +21,4 @@ Epee 18 101 26
 Guerrier guerrier 91 11 5 90 52 5 116 93
 Poisson 12 162 71
 Joueur Guerrier joueur 100 10 5 75 50 1 90 49
+1

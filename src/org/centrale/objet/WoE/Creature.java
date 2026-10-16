@@ -128,7 +128,7 @@ public abstract class Creature extends ElementDeJeu implements Deplacable, Comba
         if (c == null) {
             return;
         }
-        if (getPos().distance(c.getPos()) == 1 && jetReussi(pageAtt)) {
+        if (getPos().distance(c.getPos()) <= 1 && jetReussi(pageAtt)) {
             int degats = degAtt;
             if (jetReussi(c.pagePar)) {
                 degats -= c.ptPar;

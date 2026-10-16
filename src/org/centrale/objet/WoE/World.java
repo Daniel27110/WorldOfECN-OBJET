@@ -48,26 +48,148 @@ public class World {
         elements.add(element);
     }
 
+    /** Moves the player one cell when the destination is valid. */
+    public boolean deplacerJoueur(int dx, int dy) {
+        if (joueur == null || Math.abs(dx) > 1 || Math.abs(dy) > 1
+                || (dx == 0 && dy == 0)) {
+            return false;
+        }
+
+        Point2D position = joueur.getPerso().getPos();
+        int x = position.getX() + dx;
+        int y = position.getY() + dy;
+        if (!dansLeMonde(x, y)) {
+            return false;
+        }
+
+        ElementDeJeu destination = elementA(x, y);
+        if (destination instanceof Creature) {
+            return false;
+        } else if (destination instanceof Objet) {
+            position.setPosition(x, y);
+            ramasserObjet((Objet) destination);
+        } else if (destination == null) {
+            position.setPosition(x, y);
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    /** Picks up the object on the player's current position. */
+    public Objet ramasserObjet(Objet objet) {
+        if (objet == null || objet.getPos().getX() != joueur.getPerso().getPos().getX()
+                || objet.getPos().getY() != joueur.getPerso().getPos().getY()) {
+            return null;
+        }
+        elements.remove(objet);
+        joueur.ajouterObjet(objet);
+        if (objet instanceof PotionSoin) {
+            joueur.getPerso().setPtVie(joueur.getPerso().getPtVie()
+                    + ((PotionSoin) objet).getSoin());
+        } else if (objet instanceof Nourriture) {
+            joueur.getPerso().setPtVie(joueur.getPerso().getPtVie()
+                    + ((Nourriture) objet).getSoin());
+        } else if (objet instanceof Epee) {
+            joueur.getPerso().setDegAtt(joueur.getPerso().getDegAtt()
+                    + ((Epee) objet).getBonusDegAtt());
+        }
+        return objet;
+    }
+
+    /** Attacks the first adjacent creature and returns it, or null. */
+    public Creature combattreJoueur() {
+        if (joueur == null) {
+            return null;
+        }
+        for (ElementDeJeu element : new ArrayList<>(elements)) {
+            if (element instanceof Creature
+                    && joueur.getPerso().getPos().distance(element.getPos()) <= 1) {
+                Creature cible = (Creature) element;
+                joueur.getPerso().combattre(cible);
+                if (cible.getPtVie() <= 0) {
+                    elements.remove(cible);
+                }
+                return cible;
+            }
+        }
+        return null;
+    }
+
+    /** Moves every creature in the world by one free random cell. */
+    public void deplacerCreatures() {
+        int[][] directions = {
+            {-1, -1}, {0, -1}, {1, -1}, {-1, 0},
+            {1, 0}, {-1, 1}, {0, 1}, {1, 1}
+        };
+        Random random = new Random();
+        for (ElementDeJeu element : new ArrayList<>(elements)) {
+            if (!(element instanceof Creature)) {
+                continue;
+            }
+            Creature creature = (Creature) element;
+            int[] direction = directions[random.nextInt(directions.length)];
+            int dx = direction[0];
+            int dy = direction[1];
+            int x = creature.getPos().getX() + dx;
+            int y = creature.getPos().getY() + dy;
+            if (dansLeMonde(x, y) && elementA(x, y) == null
+                    && !joueurA(x, y)) {
+                creature.getPos().setPosition(x, y);
+            }
+        }
+    }
+
+    private boolean dansLeMonde(int x, int y) {
+        return x >= 0 && x < largeur && y >= 0 && y < hauteur;
+    }
+
+    private ElementDeJeu elementA(int x, int y) {
+        for (ElementDeJeu element : elements) {
+            if (element.getPos().getX() == x && element.getPos().getY() == y) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    private boolean joueurA(int x, int y) {
+        return joueur != null && joueur.getPerso().getPos().getX() == x
+                && joueur.getPerso().getPos().getY() == y;
+    }
+
     /**
      * Creates a random world with a player and the requested number of elements.
      */
     public void creerMondeAleatoire(int nombreElements) {
+        creerMondeAleatoire(10, 10, nombreElements);
+    }
+
+    /** Creates a random world with the supplied size and number of elements. */
+    public void creerMondeAleatoire(int nouvelleLargeur, int nouvelleHauteur,
+            int nombreElements) {
+        if (nouvelleLargeur <= 0 || nouvelleHauteur <= 0) {
+            throw new IllegalArgumentException("La taille du monde doit etre positive.");
+        }
+        if (nombreElements < 0 || nombreElements > nouvelleLargeur * nouvelleHauteur - 1) {
+            throw new IllegalArgumentException("Trop d'elements pour cette taille de monde.");
+        }
         Random random = new Random();
-        largeur = 10;
-        hauteur = 10;
+        largeur = nouvelleLargeur;
+        hauteur = nouvelleHauteur;
         elements.clear();
 
         joueur = new Joueur(new Guerrier("joueur", 100, 10, 5, 75, 50, 1,
                 Point2D.randomPoint(hauteur, largeur)));
 
         for (int i = 0; i < nombreElements; i++) {
-            elements.add(elementAleatoire(random));
+            Point2D position = positionLibre(random);
+            elements.add(elementAleatoire(random, position));
         }
     }
 
     /** Creates n random elements and adds them to the world. */
-    private ElementDeJeu elementAleatoire(Random random) {
-        Point2D position = Point2D.randomPoint(hauteur, largeur);
+    private ElementDeJeu elementAleatoire(Random random, Point2D position) {
         int type = random.nextInt(10);
         if (type == 0) {
             return new Guerrier("guerrier", 20 + random.nextInt(81), 5 + random.nextInt(16),
@@ -110,6 +232,18 @@ public class World {
             return new Eau(5 + random.nextInt(31), position);
         }
         return new NuageToxique(20 + random.nextInt(81), 5 + random.nextInt(16), position);
+    }
+
+    private Point2D positionLibre(Random random) {
+        if (elements.size() >= largeur * hauteur - 1) {
+            throw new IllegalArgumentException("Le monde ne peut pas contenir autant d'elements.");
+        }
+
+        Point2D position;
+        do {
+            position = Point2D.randomPoint(hauteur, largeur);
+        } while (joueurA(position.getX(), position.getY()) || elementA(position.getX(), position.getY()) != null);
+        return position;
     }
 
     /** Loads a save file from the {@code saveFiles} folder. */
