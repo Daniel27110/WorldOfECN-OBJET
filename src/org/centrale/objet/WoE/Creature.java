@@ -28,12 +28,12 @@ public abstract class Creature extends ElementDeJeu implements Deplacable, Comba
      * @param pos initial position
      */
     public Creature(int ptVie, int degAtt, int ptPar, int pageAtt, int pagePar, Point2D pos) {
+        super(pos);
         this.ptVie = ptVie;
         this.degAtt = degAtt;
         this.ptPar = ptPar;
         this.pageAtt = pageAtt;
         this.pagePar = pagePar;
-        super(pos);
     }
 
     /**
@@ -46,64 +46,54 @@ public abstract class Creature extends ElementDeJeu implements Deplacable, Comba
                 creature.getPos());
     }
 
-    /** Returns the life points. @return the life points */
+    /** @return the life points */
     public int getPtVie() {
         return ptVie;
     }
 
-    /** Changes the life points. @param ptVie new life points */
+    /** @param ptVie new life points */
     public void setPtVie(int ptVie) {
         this.ptVie = ptVie;
     }
 
-    /** Returns the attack damage. @return the attack damage */
+    /** @return the attack damage */
     public int getDegAtt() {
         return degAtt;
     }
 
-    /** Changes the attack damage. @param degAtt new attack damage */
+    /** @param degAtt new attack damage */
     public void setDegAtt(int degAtt) {
         this.degAtt = degAtt;
     }
 
-    /** Returns the protection points. @return the protection points */
+    /** @return the protection points */
     public int getPtPar() {
         return ptPar;
     }
 
-    /** Changes the protection points. @param ptPar new protection points */
+    /** @param ptPar new protection points */
     public void setPtPar(int ptPar) {
         this.ptPar = ptPar;
     }
 
-    /** Returns the attack percentage. @return the attack percentage */
+    /** @return the attack percentage */
     public int getPageAtt() {
         return pageAtt;
     }
 
-    /** Changes the attack percentage. @param pageAtt new attack percentage */
+    /** @param pageAtt new attack percentage */
     public void setPageAtt(int pageAtt) {
         this.pageAtt = pageAtt;
     }
 
-    /** Returns the defence percentage. @return the defence percentage */
+    /** @return the defence percentage */
     public int getPagePar() {
         return pagePar;
     }
 
-    /** Changes the defence percentage. @param pagePar new defence percentage */
+    /** @param pagePar new defence percentage */
     public void setPagePar(int pagePar) {
         this.pagePar = pagePar;
-    }
-
-    /** Returns the current position. @return the current position */
-    public Point2D getPos() {
-        return super.getPos();
-    }
-
-    /** Changes the current position. @param pos new position */
-    public void setPos(Point2D pos) {
-        super.setPos(pos);
     }
 
     /** Moves the creature by a random offset of -1, 0 or 1 on each axis. */
@@ -128,7 +118,7 @@ public abstract class Creature extends ElementDeJeu implements Deplacable, Comba
         if (c == null) {
             return;
         }
-        if (getPos().distance(c.getPos()) <= 1 && jetReussi(pageAtt)) {
+        if (getPos().distanceDeGrille(c.getPos()) <= 1 && jetReussi(pageAtt)) {
             int degats = degAtt;
             if (jetReussi(c.pagePar)) {
                 degats -= c.ptPar;
@@ -137,7 +127,12 @@ public abstract class Creature extends ElementDeJeu implements Deplacable, Comba
         }
     }
 
-    /** @return whether a percentage-based die roll succeeds */
+    /**
+     * Performs a percentage-based die roll.
+     *
+     * @param pourcentage success percentage
+     * @return whether the roll succeeds
+     */
     protected boolean jetReussi(int pourcentage) {
         return 1 + (int) (Math.random() * 100) <= pourcentage;
     }

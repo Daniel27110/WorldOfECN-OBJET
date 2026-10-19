@@ -2,7 +2,9 @@ package org.centrale.objet.WoE;
 
 import javax.swing.SwingUtilities;
 
+/** Application entry point for the graphical game. */
 public class TestWoE {
+    /** Starts the game on the Swing event dispatch thread. */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

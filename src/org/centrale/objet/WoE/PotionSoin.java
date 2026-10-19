@@ -8,11 +8,13 @@ public class PotionSoin extends Objet {
         this(0, new Point2D());
     }
 
+    /** Creates a potion with the supplied healing value and position. */
     public PotionSoin(int soin, Point2D pos) {
         super(pos);
         this.soin = soin;
     }
 
+    /** @return the number of life points restored */
     public int getSoin() {
         return soin;
     }

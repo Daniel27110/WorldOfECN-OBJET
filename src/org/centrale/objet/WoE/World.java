@@ -18,33 +18,63 @@ public class World {
     private int largeur;
     private int hauteur;
     private Joueur joueur;
+    private int dernierDegatsInfliges;
+    private int derniersDegatsRecus;
     private final List<ElementDeJeu> elements = new ArrayList<>();
 
+    /** Creates an empty world. */
     public World() {
     }
 
+    /**
+     * Creates an empty world with the supplied dimensions.
+     *
+     * @param largeur world width
+     * @param hauteur world height
+     */
     public World(int largeur, int hauteur) {
+        if (largeur < 0 || hauteur < 0) {
+            throw new IllegalArgumentException("La taille du monde ne peut pas être négative.");
+        }
         this.largeur = largeur;
         this.hauteur = hauteur;
     }
 
+    /** @return the world width */
     public int getLargeur() {
         return largeur;
     }
 
+    /** @return the world height */
     public int getHauteur() {
         return hauteur;
     }
 
+    /** @return an unmodifiable view of the elements on the board */
     public List<ElementDeJeu> getElements() {
         return Collections.unmodifiableList(elements);
     }
 
+    /** @return the player, or {@code null} when the world has no player */
     public Joueur getJoueur() {
         return joueur;
     }
 
+    /** @return damage dealt by the player's most recent combat */
+    public int getDernierDegatsInfliges() {
+        return dernierDegatsInfliges;
+    }
+
+    /** @return damage received by the player in the most recent combat */
+    public int getDerniersDegatsRecus() {
+        return derniersDegatsRecus;
+    }
+
+    /** Adds an element to the world. */
     public void ajouterElement(ElementDeJeu element) {
+        if (element == null) {
+            throw new IllegalArgumentException("Un élément nul ne peut pas être ajouté.");
+        }
         elements.add(element);
     }
 
@@ -78,35 +108,46 @@ public class World {
 
     /** Picks up the object on the player's current position. */
     public Objet ramasserObjet(Objet objet) {
-        if (objet == null || objet.getPos().getX() != joueur.getPerso().getPos().getX()
+        if (joueur == null || objet == null
+                || objet.getPos().getX() != joueur.getPerso().getPos().getX()
                 || objet.getPos().getY() != joueur.getPerso().getPos().getY()) {
             return null;
         }
         elements.remove(objet);
         joueur.ajouterObjet(objet);
-        if (objet instanceof PotionSoin) {
-            joueur.getPerso().setPtVie(joueur.getPerso().getPtVie()
-                    + ((PotionSoin) objet).getSoin());
-        } else if (objet instanceof Nourriture) {
-            joueur.getPerso().setPtVie(joueur.getPerso().getPtVie()
-                    + ((Nourriture) objet).getSoin());
-        } else if (objet instanceof Epee) {
+        if (objet instanceof PotionSoin potion) {
+            soignerJoueur(potion.getSoin());
+        } else if (objet instanceof Nourriture nourriture) {
+            soignerJoueur(nourriture.getSoin());
+        } else if (objet instanceof Epee epee) {
             joueur.getPerso().setDegAtt(joueur.getPerso().getDegAtt()
-                    + ((Epee) objet).getBonusDegAtt());
+                    + epee.getBonusDegAtt());
         }
         return objet;
     }
 
-    /** Attacks the first adjacent creature and returns it, or null. */
+    private void soignerJoueur(int soin) {
+        joueur.getPerso().setPtVie(joueur.getPerso().getPtVie() + soin);
+    }
+
+    /** Attacks the first creature within the player's attack range. */
     public Creature combattreJoueur() {
         if (joueur == null) {
             return null;
         }
         for (ElementDeJeu element : new ArrayList<>(elements)) {
             if (element instanceof Creature
-                    && joueur.getPerso().getPos().distance(element.getPos()) <= 1) {
+                    && joueur.getPerso().getPos().distanceDeGrille(element.getPos()) <= joueur.getPerso()
+                            .getDistAttMax()) {
                 Creature cible = (Creature) element;
+                int vieCibleAvant = cible.getPtVie();
+                int vieJoueurAvant = joueur.getPerso().getPtVie();
                 joueur.getPerso().combattre(cible);
+                if (cible.getPtVie() > 0) {
+                    cible.combattre(joueur.getPerso());
+                }
+                dernierDegatsInfliges = vieCibleAvant - cible.getPtVie();
+                derniersDegatsRecus = vieJoueurAvant - joueur.getPerso().getPtVie();
                 if (cible.getPtVie() <= 0) {
                     elements.remove(cible);
                 }
@@ -119,8 +160,8 @@ public class World {
     /** Moves every creature in the world by one free random cell. */
     public void deplacerCreatures() {
         int[][] directions = {
-            {-1, -1}, {0, -1}, {1, -1}, {-1, 0},
-            {1, 0}, {-1, 1}, {0, 1}, {1, 1}
+                { -1, -1 }, { 0, -1 }, { 1, -1 }, { -1, 0 },
+                { 1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }
         };
         Random random = new Random();
         for (ElementDeJeu element : new ArrayList<>(elements)) {
@@ -168,19 +209,30 @@ public class World {
     /** Creates a random world with the supplied size and number of elements. */
     public void creerMondeAleatoire(int nouvelleLargeur, int nouvelleHauteur,
             int nombreElements) {
+        creerMondeAleatoire(nouvelleLargeur, nouvelleHauteur, nombreElements,
+                new Guerrier("joueur", 100, 10, 5, 75, 50, 1,
+                        Point2D.randomPoint(nouvelleHauteur, nouvelleLargeur)));
+    }
+
+    /** Creates a random world with a supplied player character. */
+    public void creerMondeAleatoire(int nouvelleLargeur, int nouvelleHauteur,
+            int nombreElements, Personnage personnage) {
         if (nouvelleLargeur <= 0 || nouvelleHauteur <= 0) {
             throw new IllegalArgumentException("La taille du monde doit etre positive.");
         }
         if (nombreElements < 0 || nombreElements > nouvelleLargeur * nouvelleHauteur - 1) {
             throw new IllegalArgumentException("Trop d'elements pour cette taille de monde.");
         }
+        if (personnage == null) {
+            throw new IllegalArgumentException("Le personnage du joueur ne peut pas être nul.");
+        }
         Random random = new Random();
         largeur = nouvelleLargeur;
         hauteur = nouvelleHauteur;
         elements.clear();
 
-        joueur = new Joueur(new Guerrier("joueur", 100, 10, 5, 75, 50, 1,
-                Point2D.randomPoint(hauteur, largeur)));
+        personnage.setPos(Point2D.randomPoint(hauteur, largeur));
+        joueur = new Joueur(personnage);
 
         for (int i = 0; i < nombreElements; i++) {
             Point2D position = positionLibre(random);
@@ -246,14 +298,22 @@ public class World {
         return position;
     }
 
-    /** Loads a save file from the {@code saveFiles} folder. */
+    /**
+     * Loads a world from a file in the save directory.
+     *
+     * @param nomFichier save file name
+     * @return the loaded world
+     * @throws IOException if the file cannot be read
+     */
     public static World sauvegardePartie(String nomFichier) throws IOException {
         return sauvegardePartie(SAVE_FILES.resolve(nomFichier));
     }
 
     /**
-     * Loads a save file with automatic name convention (Sauvegarde1.txt,
-     * Sauvegarde2.txt etc)
+     * Loads the first save file found using the default name convention.
+     *
+     * @return the default saved world
+     * @throws IOException if the file cannot be read
      */
     public static World sauvegardePartie() throws IOException {
         int i = 1;
@@ -266,7 +326,13 @@ public class World {
         }
     }
 
-    /** Loads a save file from the supplied path. */
+    /**
+     * Loads a world from the supplied path.
+     *
+     * @param fichier save file path
+     * @return the loaded world
+     * @throws IOException if the file cannot be read
+     */
     public static World sauvegardePartie(Path fichier) throws IOException {
         World world = new World();
         try (BufferedReader lecteur = new BufferedReader(new FileReader(fichier.toFile()))) {
@@ -301,12 +367,22 @@ public class World {
         return world;
     }
 
-    /** Exports this world to a save file in the {@code saveFiles} folder. */
+    /**
+     * Saves this world in the save directory.
+     *
+     * @param nomFichier save file name
+     * @throws IOException if the file cannot be written
+     */
     public void sauvegarderPartie(String nomFichier) throws IOException {
         sauvegarderPartie(SAVE_FILES.resolve(nomFichier));
     }
 
-    /** Exports this world to the supplied save-file path. */
+    /**
+     * Saves this world to the supplied path.
+     *
+     * @param fichier save file path
+     * @throws IOException if the file cannot be written
+     */
     public void sauvegarderPartie(Path fichier) throws IOException {
         try (BufferedWriter ecrivain = new BufferedWriter(new FileWriter(fichier.toFile()))) {
             ecrivain.write("Largeur " + largeur);

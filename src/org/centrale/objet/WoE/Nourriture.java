@@ -9,5 +9,6 @@ public abstract class Nourriture extends Objet {
         this.soin = soin;
     }
 
+    /** @return the number of life points restored */
     public int getSoin() { return soin; }
 }

@@ -72,6 +72,11 @@ public class Point2D {
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
+    /** Returns the number of grid cells to another point, including diagonals. */
+    public int distanceDeGrille(Point2D p) {
+        return Math.max(Math.abs(this.x - p.x), Math.abs(this.y - p.y));
+    }
+
     /**
      * Creates a random point inside a world rectangle.
      *

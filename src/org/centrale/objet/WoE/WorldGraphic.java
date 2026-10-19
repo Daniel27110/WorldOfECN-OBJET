@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.BasicStroke;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import javax.swing.Timer;
 
 /** Simple grid display for a world. */
 public class WorldGraphic extends JFrame {
+    private static final long serialVersionUID = 1L;
     private int turn;
     private final JLabel turnLabel = new JLabel("Tour : 0", SwingConstants.CENTER);
     private final JTextArea playerStats = new JTextArea();
@@ -83,10 +85,12 @@ public class WorldGraphic extends JFrame {
     private void fight(World world, Board board) {
         Creature target = world.combattreJoueur();
         if (target == null) {
-            log("Aucune créature à combattre à proximité.");
+            log("Aucune créature à combattre à portée.");
             return;
         }
         log("Combat contre " + target.getClass().getSimpleName() + ".");
+        log("Vous infligez " + world.getDernierDegatsInfliges() + " dégâts.");
+        log("L'ennemi vous inflige " + world.getDerniersDegatsRecus() + " dégâts.");
         if (target.getPtVie() <= 0) {
             log("La créature est vaincue.");
         } else {
@@ -144,8 +148,24 @@ public class WorldGraphic extends JFrame {
             if (size <= 0 || size > 100) {
                 throw new NumberFormatException();
             }
+            String[] classes = { "Guerrier", "Archer", "Paysan" };
+            String characterClass = (String) JOptionPane.showInputDialog(this,
+                    "Choisissez une classe :", "Nouveau personnage",
+                    JOptionPane.QUESTION_MESSAGE, null, classes, classes[0]);
+            if (characterClass == null) {
+                return;
+            }
+
+            String name = JOptionPane.showInputDialog(this,
+                    "Nom du personnage :", "Nouveau personnage",
+                    JOptionPane.QUESTION_MESSAGE);
+            if (name == null || name.trim().isEmpty()) {
+                return;
+            }
+
             World newWorld = new World();
-            newWorld.creerMondeAleatoire(size, size, Math.min(20, size * size - 1));
+            newWorld.creerMondeAleatoire(size, size, Math.min(20, size * size - 1),
+                    createCharacter(characterClass, name.trim()));
             new WorldGraphic(newWorld).setVisible(true);
             dispose();
         } catch (NumberFormatException exception) {
@@ -155,14 +175,30 @@ public class WorldGraphic extends JFrame {
         }
     }
 
+    private Personnage createCharacter(String characterClass, String name) {
+        Personnage character;
+        if ("Archer".equals(characterClass)) {
+            character = new Archer();
+        } else if ("Paysan".equals(characterClass)) {
+            character = new Paysan();
+        } else {
+            character = new Guerrier();
+        }
+        character.setNom(name);
+        return character;
+    }
+
     private JPanel sidePanel(World world) {
         JTextArea text = new JTextArea(
                 "Comment jouer:\n\n"
                         + "Déplacement :\n"
-                        + "• W A S D pour se déplacer.\n"
-                        + "• Une collision avec un personnage déclenche un combat.\n"
+                        + "• W pour aller vers le haut.\n"
+                        + "• S pour aller vers le bas.\n"
+                        + "• A pour aller vers la gauche.\n"
+                        + "• D pour aller vers la droite.\n"
+                        + "• C ou le bouton Combattre pour attaquer une créature adjacente.\n"
                         + "• Marcher sur un objet pour le ajouter à l'inventaire.\n"
-                        + "• Passer le tour fait bouger les créatures.");
+                        + "• Passer le tour fait déplacer les créatures.\n\n");
         text.setEditable(false);
         text.setLineWrap(true);
         text.setWrapStyleWord(true);
@@ -220,26 +256,26 @@ public class WorldGraphic extends JFrame {
 
     private void addMovementKeys(Board board, World world) {
         board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("UP"), "up");
-        board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke("W"), "up");
-        board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("DOWN"), "down");
         board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke("S"), "down");
         board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("LEFT"), "left");
-        board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke("A"), "left");
         board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("RIGHT"), "right");
-        board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke("D"), "right");
+        board.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke("C"), "fight");
 
         board.getActionMap().put("up", movement(world, 0, -1, board));
         board.getActionMap().put("down", movement(world, 0, 1, board));
         board.getActionMap().put("left", movement(world, -1, 0, board));
         board.getActionMap().put("right", movement(world, 1, 0, board));
+        board.getActionMap().put("fight", new AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent event) {
+                fight(world, board);
+            }
+        });
     }
 
     private AbstractAction movement(World world, int dx, int dy, Board board) {
@@ -264,8 +300,9 @@ public class WorldGraphic extends JFrame {
     }
 
     private static class Board extends JPanel {
-        private final World world;
-        private final Map<String, GifSprite> sprites = new HashMap<>();
+        private static final long serialVersionUID = 1L;
+        private final transient World world;
+        private final transient Map<String, GifSprite> sprites = new HashMap<>();
         private final Random random = new Random();
         private int[][] emptyTileVariants;
 
@@ -322,9 +359,12 @@ public class WorldGraphic extends JFrame {
             if (world.getJoueur() != null) {
                 drawElement(g, world.getJoueur().getPerso(), left, top, cell, columns, rows);
                 Point2D playerPosition = world.getJoueur().getPerso().getPos();
-                g.setColor(Color.RED);
-                g.drawRect(left + playerPosition.getX() * cell,
+                Graphics2D border = (Graphics2D) g.create();
+                border.setColor(new Color(218, 165, 32));
+                border.setStroke(new BasicStroke(4));
+                border.drawRect(left + playerPosition.getX() * cell,
                         top + playerPosition.getY() * cell, cell, cell);
+                border.dispose();
             }
         }
 

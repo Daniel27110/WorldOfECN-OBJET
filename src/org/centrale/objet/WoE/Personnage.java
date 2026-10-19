@@ -73,10 +73,10 @@ public abstract class Personnage extends Creature {
         if (c == null) {
             return;
         }
-        float distance = getPos().distance(c.getPos());
+        int distance = getPos().distanceDeGrille(c.getPos());
         if (distance <= 1) {
             super.combattre(c);
-        } else if (distance > 1 && distance < distAttMax && peutTirer()) {
+        } else if (distance > 1 && distance <= distAttMax && peutTirer()) {
             consommerProjectile();
             if (jetReussi(getPageAtt())) {
                 c.setPtVie(Math.max(0, c.getPtVie() - getDegAtt()));

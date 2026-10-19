@@ -8,16 +8,17 @@ public class Archer extends Personnage {
     /** Creates an archer with the supplied attributes. */
     public Archer(String nom, int ptVie, int degAtt, int ptPar, int pageAtt, int pagePar, int distAttMax,
             Point2D pos, int nbFleches) {
-        super(nom, ptVie, degAtt, ptPar, pageAtt, pagePar, distAttMax, pos);
+        super(nom, ptVie, degAtt, ptPar, pageAtt, pagePar, Math.max(2, distAttMax), pos);
         this.nbFleches = nbFleches;
     }
 
     /** Creates an archer with default attributes and ten arrows. */
     public Archer() {
-        super();
+        super("Personnage", 100, 10, 5, 5, 5, 2, new Point2D());
         this.nbFleches = 10;
     }
 
+    /** @return the number of arrows remaining */
     public int getNbFleches() {
         return nbFleches;
     }
